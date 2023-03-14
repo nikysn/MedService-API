@@ -16,6 +16,21 @@ namespace MedServiceAPI.Services.PatientServices
             _mapper = mapper;
         }
 
+        private async Task<Doctor> GetDoctor(int id)
+        {
+            var doctor = await  _dataContext.Doctors
+               .Include(d => d.AppointmentDate)
+               .ThenInclude(ad => ad.AppointmentTimes)
+               .FirstOrDefaultAsync(d => d.Id == id);
+
+            if (doctor == null)
+            {
+                throw new ArgumentException("Такого доктора нет");
+            }
+
+            return doctor;
+        }
+
         public async Task<List<DoctorDTOWithoutSchedule>> GetAllDoctors()
         {
             var doctors = await _dataContext.Doctors.ToListAsync();
@@ -25,15 +40,7 @@ namespace MedServiceAPI.Services.PatientServices
 
         public async Task<List<TimeSpan>> GetAllAppointmentTimes(int id, DateTime date)
         {
-            var doctor = await _dataContext.Doctors
-               .Include(d => d.AppointmentDate)
-               .ThenInclude(ad => ad.AppointmentTimes)
-               .FirstOrDefaultAsync(d => d.Id == id);
-
-            if (doctor == null)
-            {
-                throw new ArgumentException("Такого доктора нет");
-            }
+            var doctor = await GetDoctor(id);
 
             if (date == default)
             {
@@ -59,10 +66,8 @@ namespace MedServiceAPI.Services.PatientServices
 
         public async Task<List<AppointmentTime>> MakeAnAppointment(int id, DateTime date, string time)
         {
-            var doctor = await _dataContext.Doctors
-                .Include(d => d.AppointmentDate)
-                .ThenInclude(ad => ad.AppointmentTimes)
-                .FirstOrDefaultAsync(d => d.Id == id);
+            var doctor = await GetDoctor(id);
+
             var appointmentDate = doctor.AppointmentDate.SingleOrDefault(ad => ad.Date == date);
 
             if (appointmentDate == null)
@@ -80,5 +85,7 @@ namespace MedServiceAPI.Services.PatientServices
 
             return appointmentDate.AppointmentTimes;
         }
+
+        
     }
 }
