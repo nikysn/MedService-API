@@ -1,4 +1,6 @@
-﻿namespace MedServiceAPI.Dto
+﻿using MedServiceAPI.Model;
+
+namespace MedServiceAPI.Dto
 {
     public class DoctorDTOWithoutSchedule
     {
