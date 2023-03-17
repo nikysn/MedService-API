@@ -2,26 +2,33 @@
 
 namespace MedServiceAPI.Model
 {
+   public enum Speciality
+    {
+        Therapist,
+        Surgeon
+    }
+    
     public class Doctor
     {
         public int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public string Speciality { get; set; }
+        public Speciality Speciality { get; set; }
         public List<AppointmentDate> AppointmentDate { get; set; }
 
         [NotMapped]
         public Dictionary<DayOfWeek, List<TimeSpan>> Schedule { get; set; }
 
-        public Doctor(string firstName, string lastName, string speciality)
+        public Doctor(string firstName, string lastName, Speciality speciality)
         {
             FirstName = firstName;
             LastName = lastName;
             Speciality = speciality;
             AppointmentDate = new List<AppointmentDate>();
+            var scheduleGenerator = new ScheduleGenerator();
+            Schedule = scheduleGenerator.GenerateSchedule(this);
+          //  GenerationSchedule();
 
-            GenerationSchedule();
-            
         }
 
         private void GenerationSchedule()

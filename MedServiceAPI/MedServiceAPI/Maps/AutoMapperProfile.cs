@@ -8,7 +8,10 @@ namespace MedServiceAPI.Maps
     {
         public AutoMapperProfile() 
         {
-            CreateMap<Doctor, DoctorDTOWithoutSchedule>();
+            CreateMap<Doctor, DoctorDTOWithoutSchedule>()
+                .ForMember(dest => dest.Speciality, opt => opt.MapFrom(src => src.Speciality));
+
+            CreateMap<Speciality, string>().ConvertUsing(src => src.ToString());
         }
     }
 }
