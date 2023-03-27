@@ -1,6 +1,6 @@
 ﻿namespace MedServiceAPI.Model
 {
-    public class Patient
+    public class Admin
     {
         public int Id { get; set; }
         public string FirstName { get; set; }
