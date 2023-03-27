@@ -15,6 +15,10 @@ namespace MedServiceAPI.Services.AdminService
 {
     public class AuthService : IAuthService
     {
+        public const string Admin = "Admin";
+        public const string Doctor = "Doctor";
+        public const string Patient = "Patient";
+
         private readonly DataContext _dataContext;
         private readonly IConfiguration _configuration;
         public AuthService(DataContext dataContext, IConfiguration configuration)
@@ -22,32 +26,32 @@ namespace MedServiceAPI.Services.AdminService
             _dataContext = dataContext;
             _configuration = configuration;
         }
-        public async Task Registration(NewUserDto request)
+        public async Task Registration(NewUserDto newUser)
         {
             string passwordHash
-                = BCrypt.Net.BCrypt.HashPassword(request.Password);
+                = BCrypt.Net.BCrypt.HashPassword(newUser.Password);
 
             int adminCount = await _dataContext.Admins.CountAsync();
-            string role = adminCount == 0 ? "Admin" : "Patient";
+            string role = adminCount == 0 ? Admin : Patient;
 
-            if(role== "Admin")
+            if(role== Admin)
             {
                 Admin admin = new Admin();
-                admin.Login = request.Login;
+                admin.Login = newUser.Login;
                 admin.PasswordHash = passwordHash;
-                admin.FirstName = request.FirstName;
-                admin.LastName = request.LastName;
+                admin.FirstName = newUser.FirstName;
+                admin.LastName = newUser.LastName;
                 admin.Role = role;
 
                 _dataContext.Admins.Add(admin);
             }
-            if(role == "Patient")
+            if(role == Patient)
             {
                 Patient patient = new Patient();
-                patient.FirstName = request.FirstName;
-                patient.LastName = request.LastName;
+                patient.FirstName = newUser.FirstName;
+                patient.LastName = newUser.LastName;
                 patient.Role = role;
-                patient.Login = request.Login;
+                patient.Login = newUser.Login;
                 patient.PasswordHash = passwordHash;
 
                 _dataContext.Patients.Add(patient);
@@ -83,7 +87,7 @@ namespace MedServiceAPI.Services.AdminService
             Doctor doctor = new Doctor(newDoctor.FirstName,newDoctor.LastName,newDoctor.Speciality);
             doctor.Login = newDoctor.Login;
             doctor.PasswordHash = passwordHash;
-            doctor.Role = "Doctor";
+            doctor.Role = Doctor;
 
             await _dataContext.Doctors.AddAsync(doctor);
             await _dataContext.SaveChangesAsync();

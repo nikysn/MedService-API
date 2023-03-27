@@ -24,9 +24,9 @@ namespace MedServiceAPI.Controllers
 
         [HttpPost("Registration")]
 
-        public async Task<ActionResult> Registration(NewUserDto request)
+        public async Task<ActionResult> Registration(NewUserDto newUser)
         {
-            await _authService.Registration(request);
+            await _authService.Registration(newUser);
             return Ok();
         }
 
