@@ -26,6 +26,7 @@ namespace MedServiceAPI.Services.AdminService
             _dataContext = dataContext;
             _configuration = configuration;
         }
+
         public async Task Registration(NewUserDto newUser)
         {
             string passwordHash
@@ -59,7 +60,7 @@ namespace MedServiceAPI.Services.AdminService
             
             await _dataContext.SaveChangesAsync();
         }
-
+        
         public async Task<string> Login(string login, string password)
         {
             var admin = await _dataContext.Admins.SingleOrDefaultAsync(x => x.Login == login);

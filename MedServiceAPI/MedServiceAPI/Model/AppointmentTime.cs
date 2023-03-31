@@ -7,7 +7,6 @@
         public TimeSpan Time { get; set; }
         public int AppointmentDateId { get; set; }
         public AppointmentDate AppointmentDate { get; set; }
-        //public bool Occupied { get; set; }
 
         public AppointmentTime()
         {
