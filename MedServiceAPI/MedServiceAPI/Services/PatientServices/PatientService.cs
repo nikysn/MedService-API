@@ -1,15 +1,18 @@
 ﻿using AutoMapper;
+using Azure.Core;
 using FluentValidation;
 using MedServiceAPI.Data;
 using MedServiceAPI.Dto;
 using MedServiceAPI.Model;
 using MedServiceAPI.Validations;
 using Microsoft.EntityFrameworkCore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MedServiceAPI.Services.PatientServices
 {
     public class PatientService : IPatientService
     {
+       private AppointmentDateRequestValidator dateRequestValidator = new AppointmentDateRequestValidator();
         private readonly DataContext _dataContext;
         private readonly IMapper _mapper;
         
@@ -30,22 +33,7 @@ namespace MedServiceAPI.Services.PatientServices
         {
             var doctor = await GetDoctor(id);
 
-            var validator = new AppointmentDateRequestValidator();
-            validator.ValidateAndThrow((doctor, date));
-           /* if (date == default)
-            {
-                throw new ArgumentException("Дата не может быть пустой");
-            }
-            
-            if (doctor.Schedule == null || !doctor.Schedule.ContainsKey(date.DayOfWeek))
-            {
-                throw new ArgumentException($"Расписание доктора отсутствует или У доктора нет расписания на {date.DayOfWeek}");
-            }
-
-            if(date.AddDays(7) < DateTime.Now)
-            {
-                throw new ArgumentException("Запись к врачу только на следующие 7 дней");
-            }*/
+            dateRequestValidator.ValidateAndThrow((doctor, date));
 
             var occupiedTimes = doctor.AppointmentDate
                 .SingleOrDefault(ad => ad.Date == date)
@@ -63,7 +51,12 @@ namespace MedServiceAPI.Services.PatientServices
         {
             var doctor = await GetDoctor(id);
 
+            dateRequestValidator.ValidateAndThrow((doctor, date));
+
             var appointmentDate = doctor.AppointmentDate.SingleOrDefault(ad => ad.Date == date);
+
+            var validatorTime = new AppointmentTimeRequestValidator();
+            validatorTime.ValidateAndThrow((appointmentDate, time));
 
             if (appointmentDate == null)
             {
