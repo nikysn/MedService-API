@@ -1,4 +1,8 @@
-using MedServiceAPI.Data;
+//using MedServiceAPI.Data;
+using MedService.DAL.Data;
+using MedService.DAL.Interfaces;
+using MedService.DAL.Mappings;
+using MedService.DAL.Repositories;
 using MedServiceAPI.Services.AdminService;
 using MedServiceAPI.Services.PatientServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -25,7 +29,7 @@ builder.Services.AddSwaggerGen(options =>
 
     options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
-builder.Services.AddAutoMapper(typeof(Program).Assembly);
+builder.Services.AddAutoMapper(typeof(Program),typeof(AutoMapperProfile));
 var connectionString = builder.Configuration.GetConnectionString("MSSQL");
 //builder.Services.AddDbContext<DataContext>();
 builder.Services.AddDbContext<DataContext>(options =>
@@ -34,6 +38,9 @@ builder.Services.AddDbContext<DataContext>(options =>
 });
 builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
+builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 builder.Services.AddAuthentication().AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters

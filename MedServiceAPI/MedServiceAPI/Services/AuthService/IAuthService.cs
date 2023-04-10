@@ -1,5 +1,4 @@
-﻿using MedServiceAPI.Dto;
-using MedServiceAPI.Model;
+﻿using MedService.DAL.DTO;
 
 namespace MedServiceAPI.Services.AdminService
 {

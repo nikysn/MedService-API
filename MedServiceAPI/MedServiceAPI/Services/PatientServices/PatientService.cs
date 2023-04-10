@@ -1,37 +1,41 @@
 ﻿using AutoMapper;
 using Azure.Core;
 using FluentValidation;
-using MedServiceAPI.Data;
-using MedServiceAPI.Dto;
-using MedServiceAPI.Model;
+using MedService.DAL.Model;
+using MedService.DAL.Interfaces;
+using MedService.DAL.Data;
 using MedServiceAPI.Validations;
 using Microsoft.EntityFrameworkCore;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using MedService.DAL.DTO;
 
 namespace MedServiceAPI.Services.PatientServices
 {
     public class PatientService : IPatientService
     {
-       private AppointmentDateRequestValidator dateRequestValidator = new AppointmentDateRequestValidator();
-        private readonly DataContext _dataContext;
+        private AppointmentDateRequestValidator dateRequestValidator = new AppointmentDateRequestValidator();
+        //  private readonly DataContext _dataContext;
+        private readonly IDoctorRepository _doctorRepository;
         private readonly IMapper _mapper;
-        
-        public PatientService(DataContext dataContext, IMapper mapper)
+
+        public PatientService(/*DataContext dataContext*/ IMapper mapper, IDoctorRepository doctorRepository)
         {
-            _dataContext = dataContext;
+            // _dataContext = dataContext;
             _mapper = mapper;
+            _doctorRepository = doctorRepository;
         }
 
         public async Task<List<DoctorDTOWithoutSchedule>> GetAllDoctors()
         {
-            var doctors = await _dataContext.Doctors.ToListAsync();
+            // var doctors = await _dataContext.Doctors.ToListAsync();
+            var doctors = await _doctorRepository.GetAllDoctors();
             var doctorsDto = _mapper.Map<List<DoctorDTOWithoutSchedule>>(doctors);
             return doctorsDto;
         }
-        
+
         public async Task<List<TimeSpan>> GetAllAppointmentTimes(int id, DateTime date)
         {
-            var doctor = await GetDoctor(id);
+            var doctor = await _doctorRepository.GetDoctor(id);
 
             dateRequestValidator.ValidateAndThrow((doctor, date));
 
@@ -49,55 +53,43 @@ namespace MedServiceAPI.Services.PatientServices
 
         public async Task<List<AppointmentTime>> MakeAnAppointment(int id, DateTime date, string time)
         {
-            var doctor = await GetDoctor(id);
+            var doctor = await _doctorRepository.GetDoctor(id);
 
             dateRequestValidator.ValidateAndThrow((doctor, date));
 
             var appointmentDate = doctor.AppointmentDate.SingleOrDefault(ad => ad.Date == date);
-
             var validatorTime = new AppointmentTimeRequestValidator();
-            validatorTime.ValidateAndThrow((appointmentDate, time));
 
             if (appointmentDate == null)
             {
                 appointmentDate = new AppointmentDate(date, TimeSpan.Parse(time), doctor.Id);
+                validatorTime.ValidateAndThrow((doctor, appointmentDate));
                 doctor.AppointmentDate.Add(appointmentDate);
             }
 
             else
             {
-                appointmentDate.AppointmentTimes.Add(new AppointmentTime(TimeSpan.Parse(time), doctor.Id));
+                var newAppointmentDate = new AppointmentDate(date, TimeSpan.Parse(time), doctor.Id);
+                validatorTime.ValidateAndThrow((doctor, newAppointmentDate));
+                var appointmentTime = newAppointmentDate.AppointmentTimes[0];
+                appointmentDate.AppointmentTimes.Add(appointmentTime);
             }
 
-            await _dataContext.SaveChangesAsync();
+            await _doctorRepository.SaveChanges();
 
             return appointmentDate.AppointmentTimes;
         }
 
         public async Task DeleteAnAppointment(int id, DateTime date, string time)
         {
-            var doctor = await GetDoctor(id);
+            var doctor = await _doctorRepository.GetDoctor(id);
             var appointmentDate = doctor.AppointmentDate.Single(ad => ad.Date == date);
             var appointmentTime = appointmentDate.AppointmentTimes.Single(at => at.Time == TimeSpan.Parse(time));
-          
+
             appointmentDate.AppointmentTimes.Remove(appointmentTime);
 
-            await _dataContext.SaveChangesAsync();
+            await _doctorRepository.SaveChanges();
         }
 
-        private async Task<Doctor> GetDoctor(int id)
-        {
-            var doctor = await _dataContext.Doctors
-               .Include(d => d.AppointmentDate)
-               .ThenInclude(ad => ad.AppointmentTimes)
-               .FirstOrDefaultAsync(d => d.Id == id);
-
-            if (doctor == null)
-            {
-                throw new ArgumentException("Такого доктора нет");
-            }
-
-            return doctor;
-        }
     }
 }

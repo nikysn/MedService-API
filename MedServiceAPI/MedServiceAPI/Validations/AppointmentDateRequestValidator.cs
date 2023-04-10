@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using MedServiceAPI.Model;
+using MedService.DAL.Model;
 
 namespace MedServiceAPI.Validations
 {
