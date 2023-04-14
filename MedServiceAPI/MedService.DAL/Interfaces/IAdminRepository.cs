@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MedService.DAL.Interfaces
 {
-    public interface IAdminRepository : IBaseRepository
+    public interface IAdminRepository : IBaseRepository<Admin>
     {
         Task<int> GetAdminsCountAsync();
         Task AddAdminAsync(Admin admin);

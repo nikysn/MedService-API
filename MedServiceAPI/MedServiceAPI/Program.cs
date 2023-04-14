@@ -31,11 +31,11 @@ builder.Services.AddSwaggerGen(options =>
 });
 builder.Services.AddAutoMapper(typeof(Program),typeof(AutoMapperProfile));
 var connectionString = builder.Configuration.GetConnectionString("MSSQL");
-//builder.Services.AddDbContext<DataContext>();
 builder.Services.AddDbContext<DataContext>(options =>
 {
     options.UseSqlServer(connectionString);
 });
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();

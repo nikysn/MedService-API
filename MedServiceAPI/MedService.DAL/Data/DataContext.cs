@@ -5,6 +5,10 @@ namespace MedService.DAL.Data
 {
     public class DataContext : DbContext
     {
+        public DataContext()
+        {
+
+        }
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
            // Database.EnsureCreated();  // При первом обращении к БД - этот метод её создаст

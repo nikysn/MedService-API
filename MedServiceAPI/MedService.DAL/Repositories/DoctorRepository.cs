@@ -33,7 +33,7 @@ namespace MedService.DAL.Repositories
             return await _dataContext.Doctors.ToListAsync();
         }
 
-        public Task<Doctor> GetDoctorByLastName(string lastName)
+        public async Task<Doctor> GetDoctorByLastName(string lastName)
         {
             throw new NotImplementedException();
         }
@@ -56,6 +56,12 @@ namespace MedService.DAL.Repositories
         public async Task SaveChanges()
         {
             await _dataContext.SaveChangesAsync();
+        }
+
+        public async Task<Doctor> GetUserByLoginAsync(string login)
+        {
+            var doctor = await _dataContext.Doctors.FirstOrDefaultAsync(u => u.Login == login);
+            return doctor;
         }
     }
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MedService.DAL.Interfaces
 {
-    public interface IDoctorRepository : IBaseRepository
+    public interface IDoctorRepository : IBaseRepository<Doctor>
     {
         Task AddDoctorAsync(Doctor doctor);
         Task<Doctor> GetDoctor(int id);

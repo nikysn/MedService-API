@@ -15,10 +15,10 @@ namespace MedService.DAL.Model
             AppointmentTimes = new List<AppointmentTime>();
         }
 
-        public AppointmentDate(DateTime dateTime,TimeSpan timeSpan, int doctorId) : this()
+        public AppointmentDate(DateTime dateTime,TimeSpan timeSpan, int doctorId, int patientId) : this()
         {
             Date = dateTime;
-            var appointmentTime = new AppointmentTime(timeSpan, Id);
+            var appointmentTime = new AppointmentTime(timeSpan, Id, patientId);
             AppointmentTimes.Add(appointmentTime);
             DoctorId = doctorId;
         }

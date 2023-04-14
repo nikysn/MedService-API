@@ -36,6 +36,12 @@ namespace MedService.DAL.Repositories
             return adminCount;
         }
 
+        public async Task<Admin> GetUserByLoginAsync(string login)
+        {
+            var admin = await _dataContext.Admins.FirstOrDefaultAsync(u => u.Login == login);
+            return admin;
+        }
+
         public async Task SaveChanges()
         {
             await _dataContext.SaveChangesAsync();

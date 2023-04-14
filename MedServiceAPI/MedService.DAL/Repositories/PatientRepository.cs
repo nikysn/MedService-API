@@ -23,9 +23,15 @@ namespace MedService.DAL.Repositories
             _dataContext.Patients.Add(patient);
         }
 
-        public async Task<Patient> GetPatientByLoginAsync(string login)
+       /* public async Task<Patient> GetPatientByLoginAsync(string login)
         {
-            var patient = await _dataContext.Patients.SingleOrDefaultAsync(x => x.Login == login);
+            var patient = await _dataContext.Patients.SingleAsync(x => x.Login == login);
+            return patient;
+        }*/
+
+        public async Task<Patient> GetUserByLoginAsync(string login)
+        {
+            var patient = await _dataContext.Patients.FirstOrDefaultAsync(u => u.Login == login);
             return patient;
         }
 
