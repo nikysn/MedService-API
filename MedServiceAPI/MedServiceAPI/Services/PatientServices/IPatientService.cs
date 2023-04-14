@@ -1,5 +1,5 @@
-﻿using MedServiceAPI.Dto;
-using MedServiceAPI.Model;
+﻿using MedService.DAL.DTO;
+using MedService.DAL.Model;
 
 namespace MedServiceAPI.Services.PatientServices
 {

@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
 using Azure.Core;
-using MedServiceAPI.Data;
-using MedServiceAPI.Dto;
-using MedServiceAPI.Model;
+//using MedServiceAPI.Data;
+using MedService.DAL.Data;
+using MedService.DAL.Model;
+using MedService.DAL.DTO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -10,6 +11,8 @@ using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using MedService.DAL.Interfaces;
+using MedService.DAL.Repositories;
 
 namespace MedServiceAPI.Services.AdminService
 {
@@ -19,12 +22,26 @@ namespace MedServiceAPI.Services.AdminService
         public const string Doctor = "Doctor";
         public const string Patient = "Patient";
 
-        private readonly DataContext _dataContext;
         private readonly IConfiguration _configuration;
-        public AuthService(DataContext dataContext, IConfiguration configuration)
+        private readonly IAdminRepository _adminRepository;
+        private readonly IDoctorRepository _doctorRepository;
+        private readonly IPatientRepository _patientRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public AuthService
+            (
+            IConfiguration configuration,
+            IAdminRepository adminRepository, 
+            IDoctorRepository doctorRepository, 
+            IPatientRepository patientRepository,
+            IHttpContextAccessor httpContextAccessor
+            )
         {
-            _dataContext = dataContext;
             _configuration = configuration;
+            _adminRepository = adminRepository;
+            _doctorRepository = doctorRepository;
+            _patientRepository = patientRepository;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task Registration(NewUserDto newUser)
@@ -32,10 +49,10 @@ namespace MedServiceAPI.Services.AdminService
             string passwordHash
                 = BCrypt.Net.BCrypt.HashPassword(newUser.Password);
 
-            int adminCount = await _dataContext.Admins.CountAsync();
+            int adminCount = await _adminRepository.GetAdminsCountAsync();
             string role = adminCount == 0 ? Admin : Patient;
 
-            if(role== Admin)
+            if(role == Admin)
             {
                 Admin admin = new Admin();
                 admin.Login = newUser.Login;
@@ -44,7 +61,12 @@ namespace MedServiceAPI.Services.AdminService
                 admin.LastName = newUser.LastName;
                 admin.Role = role;
 
-                _dataContext.Admins.Add(admin);
+                var existingAdmin = await _adminRepository.GetUserByLoginAsync(admin.Login);
+                if(existingAdmin != null)
+                {
+                    throw new ArgumentException("Пользователь с таким логином уже существует");
+                }
+                await _adminRepository.AddAdminAsync(admin);
             }
             if(role == Patient)
             {
@@ -55,23 +77,29 @@ namespace MedServiceAPI.Services.AdminService
                 patient.Login = newUser.Login;
                 patient.PasswordHash = passwordHash;
 
-                _dataContext.Patients.Add(patient);
+                var existingAdmin = await _patientRepository.GetUserByLoginAsync(patient.Login);
+                if (existingAdmin != null)
+                {
+                    throw new ArgumentException("Пользователь с таким логином уже существует");
+                }
+
+                _patientRepository.AddPatientAsync(patient);
             }
-            
-            await _dataContext.SaveChangesAsync();
+
+            _adminRepository.SaveChanges();
         }
         
         public async Task<string> Login(string login, string password)
         {
-            var admin = await _dataContext.Admins.SingleOrDefaultAsync(x => x.Login == login);
+            var admin = await _adminRepository.GetAdminByLoginAsync(login);
             if(admin != null && BCrypt.Net.BCrypt.Verify(password, admin.PasswordHash))
             {
                 string token = CreateToken(admin);
                 return token;
             }
 
-            var patient = await _dataContext.Patients.SingleOrDefaultAsync(x => x.Login == login);
-            if(patient != null && BCrypt.Net.BCrypt.Verify(password, patient.PasswordHash))
+            var patient = await _patientRepository.GetUserByLoginAsync(login);
+            if (patient != null && BCrypt.Net.BCrypt.Verify(password, patient.PasswordHash))
             {
                 string token = CreateToken(patient);
                 return token;
@@ -90,8 +118,36 @@ namespace MedServiceAPI.Services.AdminService
             doctor.PasswordHash = passwordHash;
             doctor.Role = Doctor;
 
-            await _dataContext.Doctors.AddAsync(doctor);
-            await _dataContext.SaveChangesAsync();
+            var existingDoctor = await _doctorRepository.GetUserByLoginAsync(doctor.Login);
+            if (existingDoctor != null)
+            {
+                throw new ArgumentException("Пользователь с таким логином уже существует");
+            }
+
+            await _doctorRepository.AddDoctorAsync(doctor);
+            _doctorRepository.SaveChanges();
+        }
+
+        public async Task <Patient> GetCurrentPatient()
+        {
+            if (_httpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
+            {
+                var userName = _httpContextAccessor.HttpContext.User.Identity.Name;
+                var role = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+
+                if(role != Patient)
+                {
+                    throw new InvalidOperationException("Текущий пользователь не является пациентом");
+                }
+
+                var patient = await _patientRepository.GetUserByLoginAsync(userName);
+                if (patient == null)
+                {
+                    throw new InvalidOperationException($"Пациент с именем пользователя '{userName}' не найден.");
+                }
+                return patient;
+            }
+            return null;
         }
 
         private string CreateToken(dynamic user)

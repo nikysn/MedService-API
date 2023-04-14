@@ -1,5 +1,4 @@
-﻿using MedServiceAPI.Dto;
-using MedServiceAPI.Model;
+﻿using MedService.DAL.DTO;
 using MedServiceAPI.Services.PatientServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

@@ -1,5 +1,5 @@
-﻿using MedServiceAPI.Dto;
-using MedServiceAPI.Model;
+﻿using MedService.DAL.DTO;
+using MedService.DAL.Model;
 
 namespace MedServiceAPI.Services.AdminService
 {
@@ -26,5 +26,10 @@ namespace MedServiceAPI.Services.AdminService
         /// <param name="newDoctor"></param>
         /// <returns></returns>
         Task DoctorRegistration(NewDoctor newDoctor);
+        /// <summary>
+        /// Получение Id юзера который залогинелся
+        /// </summary>
+        /// <returns></returns>
+        Task<Patient> GetCurrentPatient();
     }
 }

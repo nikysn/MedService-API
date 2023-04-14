@@ -1,47 +1,55 @@
 ﻿using FluentValidation;
-using MedServiceAPI.Model;
+using MedService.DAL.Model;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Numerics;
 using System;
 
 namespace MedServiceAPI.Validations
 {
-    public class AppointmentTimeRequestValidator : AbstractValidator<(AppointmentDate appointmentDate, string time)>
+    public class AppointmentTimeRequestValidator : AbstractValidator<(Doctor doctor,AppointmentDate appointmentDate)>
     {
         public AppointmentTimeRequestValidator()
         {
-            RuleFor(x => x.time).NotEmpty().WithMessage("Дата не может быть пустой");
-            RuleFor(x => x.time).
-                 Must(time => TimeSpan.TryParse(time, out var appointmentTime)
-                 && appointmentTime.Minutes == 0
-                 && appointmentTime.Seconds == 0).WithMessage("Неверный формат времени, нужно вводить только часы");
-            RuleFor(x => x).Must(Time).WithMessage("Время уже занято");
-            RuleFor(x => x).Must(IsTimeAvailable).WithMessage("Такого времени нет в графике");
+            RuleFor(x => x.appointmentDate.AppointmentTimes[0]).NotEmpty().WithMessage("Время не может быть пустым");
+            RuleFor(x => x.appointmentDate.AppointmentTimes[0]).
+                 Must(time => time.Time.Minutes == 0 && time.Time.Seconds == 0)
+                 .WithMessage("Неверный формат времени, нужно вводить только часы");
+            RuleFor(x => x).Must(IsAppointmentTimeUnavailable).WithMessage("Время уже занято");
+            RuleFor(x => x).Must(IsTimeUnavailable).WithMessage("Такого времени нет в графике");
         }
 
-        private bool Time((AppointmentDate appointmentDate, string time) data)
+        private bool IsAppointmentTimeUnavailable((Doctor doctor, AppointmentDate appointmentDate) data)
         {
-            var appointmentTime = TimeSpan.Parse(data.time);
-            if (data.appointmentDate.AppointmentTimes.Any(x => x.Time== appointmentTime))
+            var time = data.appointmentDate.AppointmentTimes[0].Time;
+            var appointmentDate = data.appointmentDate.Date;
+            var doctorAppointmentDate = data.doctor?.AppointmentDate.FirstOrDefault(ad => ad.Date == appointmentDate);
+            if (doctorAppointmentDate == null)
             {
-                return false;
+                return true; // доктор не работает в запрошенный день, запись на данное время свободна
             }
 
-            return true;
+            return !doctorAppointmentDate.AppointmentTimes.Any(at => at.Time == time);
+            /* if (data.doctor.AppointmentDate.Any(ad => ad.Date == data.appointmentDate.Date 
+                 && ad.AppointmentTimes.Any(at => at.Time == data.appointmentDate.AppointmentTimes[0].Time)))
+             {
+                return false;
+             }
+
+             return true;*/
         }
 
-        private bool IsTimeAvailable((AppointmentDate appointmentDate, string time) data)
+        private bool IsTimeUnavailable((Doctor doctor,AppointmentDate appointmentDate) data)
         {
-            var appointmentTime = TimeSpan.Parse(data.time);
+            var appointmentTime = data.appointmentDate.AppointmentTimes[0];
             var dayOfWeek = data.appointmentDate.Date.DayOfWeek;
 
             //получаем время работы доктора для дня недели, на который записывается пациент
-            if (data.appointmentDate.Doctor?.Schedule?.TryGetValue(dayOfWeek, out var workingHours) == true)
+            if (data.doctor?.Schedule?.TryGetValue(dayOfWeek, out var workingHours) == true)
             {
                 // проверяем, есть ли время, на которое хочет записаться пациент, в графике работы доктора
-                return workingHours.Any(x => x == appointmentTime);
+                return workingHours.Any(x => x == appointmentTime.Time);
             }
-            return false;
+            return true;
         }
     }
 }
