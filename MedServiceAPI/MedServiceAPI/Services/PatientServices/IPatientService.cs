@@ -26,7 +26,7 @@ namespace MedServiceAPI.Services.PatientServices
         /// <param name="date"></param>
         /// <param name="time"></param>
         /// <returns></returns>
-        Task<List<AppointmentTime>> MakeAnAppointment(int id, DateTime date, string time);
+        Task<List<AppointmentTime>> MakeAnAppointment(AppointmentRequest appointmentRequest);
 
         /// <summary>
         /// Удалить запись
@@ -35,7 +35,7 @@ namespace MedServiceAPI.Services.PatientServices
         /// <param name="date"></param>
         /// <param name="time"></param>
         /// <returns></returns>
-        Task DeleteAnAppointment(int id, DateTime date, string time);
+        Task DeleteAnAppointment(AppointmentRequest appointmentRequest);
         
     }
 }

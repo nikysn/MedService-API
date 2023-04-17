@@ -1,8 +1,5 @@
 ﻿using FluentValidation;
 using MedService.DAL.Model;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Numerics;
-using System;
 
 namespace MedServiceAPI.Validations
 {
@@ -22,20 +19,13 @@ namespace MedServiceAPI.Validations
         {
             var time = data.appointmentDate.AppointmentTimes[0].Time;
             var appointmentDate = data.appointmentDate.Date;
-            var doctorAppointmentDate = data.doctor?.AppointmentDate.FirstOrDefault(ad => ad.Date == appointmentDate);
+            var doctorAppointmentDate = data.doctor?.AppointmentDate.FirstOrDefault(ad => ad.Date.Date == appointmentDate.Date);
             if (doctorAppointmentDate == null)
             {
                 return true; // доктор не работает в запрошенный день, запись на данное время свободна
             }
 
             return !doctorAppointmentDate.AppointmentTimes.Any(at => at.Time == time);
-            /* if (data.doctor.AppointmentDate.Any(ad => ad.Date == data.appointmentDate.Date 
-                 && ad.AppointmentTimes.Any(at => at.Time == data.appointmentDate.AppointmentTimes[0].Time)))
-             {
-                return false;
-             }
-
-             return true;*/
         }
 
         private bool IsTimeUnavailable((Doctor doctor,AppointmentDate appointmentDate) data)

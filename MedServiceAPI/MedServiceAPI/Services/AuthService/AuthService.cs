@@ -77,16 +77,16 @@ namespace MedServiceAPI.Services.AdminService
                 patient.Login = newUser.Login;
                 patient.PasswordHash = passwordHash;
 
-                var existingAdmin = await _patientRepository.GetUserByLoginAsync(patient.Login);
-                if (existingAdmin != null)
+                var existingPatient = await _patientRepository.GetUserByLoginAsync(patient.Login);
+                if (existingPatient != null)
                 {
                     throw new ArgumentException("Пользователь с таким логином уже существует");
                 }
 
-                _patientRepository.AddPatientAsync(patient);
+                await _patientRepository.AddPatientAsync(patient);
             }
 
-            _adminRepository.SaveChanges();
+            await _adminRepository.SaveChanges();
         }
         
         public async Task<string> Login(string login, string password)
