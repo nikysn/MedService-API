@@ -30,17 +30,17 @@ namespace MedServiceAPI.Controllers
         }
 
         [HttpPost("MakeAnAppointment"), Authorize(Roles = "Patient")]
-        public async Task<List<TimeSpan>> MakeAnAppointment(int id, DateTime date, string time)
+        public async Task<List<TimeSpan>> MakeAnAppointment([FromBody] AppointmentRequest appointmentRequest )
         {
-            await _patientService.MakeAnAppointment(id, date, time);
+            await _patientService.MakeAnAppointment(appointmentRequest);
 
-            return await _patientService.GetAllAppointmentTimes(id, date);
+            return await _patientService.GetAllAppointmentTimes(appointmentRequest.Id, appointmentRequest.Date);
         }
 
         [HttpDelete("DeleteAnAppointment"), Authorize(Roles = "Patient")]
-        public async Task<ActionResult> DeleteAnAppointment(int id, DateTime date, string time)
+        public async Task<ActionResult> DeleteAnAppointment([FromBody] AppointmentRequest appointmentRequest)
         {
-            await _patientService.DeleteAnAppointment(id, date, time);
+            await _patientService.DeleteAnAppointment(appointmentRequest);
 
             return Ok();
         }

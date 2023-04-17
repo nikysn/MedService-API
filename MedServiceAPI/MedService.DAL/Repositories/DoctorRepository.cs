@@ -61,6 +61,11 @@ namespace MedService.DAL.Repositories
         public async Task<Doctor> GetUserByLoginAsync(string login)
         {
             var doctor = await _dataContext.Doctors.FirstOrDefaultAsync(u => u.Login == login);
+           
+            if (doctor == null)
+            {
+                throw new ArgumentException("Такого доктора нет");
+            }
             return doctor;
         }
     }
