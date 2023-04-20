@@ -13,6 +13,7 @@ using System.Security.Claims;
 using System.Text;
 using MedService.DAL.Interfaces;
 using MedService.DAL.Repositories;
+using Microsoft.AspNetCore.Authentication;
 
 namespace MedServiceAPI.Services.AdminService
 {
@@ -31,8 +32,8 @@ namespace MedServiceAPI.Services.AdminService
         public AuthService
             (
             IConfiguration configuration,
-            IAdminRepository adminRepository, 
-            IDoctorRepository doctorRepository, 
+            IAdminRepository adminRepository,
+            IDoctorRepository doctorRepository,
             IPatientRepository patientRepository,
             IHttpContextAccessor httpContextAccessor
             )
@@ -52,7 +53,7 @@ namespace MedServiceAPI.Services.AdminService
             int adminCount = await _adminRepository.GetAdminsCountAsync();
             string role = adminCount == 0 ? Admin : Patient;
 
-            if(role == Admin)
+            if (role == Admin)
             {
                 Admin admin = new Admin();
                 admin.Login = newUser.Login;
@@ -62,13 +63,13 @@ namespace MedServiceAPI.Services.AdminService
                 admin.Role = role;
 
                 var existingAdmin = await _adminRepository.GetUserByLoginAsync(admin.Login);
-                if(existingAdmin != null)
+                if (existingAdmin != null)
                 {
                     throw new ArgumentException("Пользователь с таким логином уже существует");
                 }
                 await _adminRepository.AddAdminAsync(admin);
             }
-            if(role == Patient)
+            if (role == Patient)
             {
                 Patient patient = new Patient();
                 patient.FirstName = newUser.FirstName;
@@ -88,11 +89,11 @@ namespace MedServiceAPI.Services.AdminService
 
             await _adminRepository.SaveChanges();
         }
-        
+
         public async Task<string> Login(string login, string password)
         {
             var admin = await _adminRepository.GetAdminByLoginAsync(login);
-            if(admin != null && BCrypt.Net.BCrypt.Verify(password, admin.PasswordHash))
+            if (admin != null && BCrypt.Net.BCrypt.Verify(password, admin.PasswordHash))
             {
                 string token = CreateToken(admin);
                 return token;
@@ -105,7 +106,15 @@ namespace MedServiceAPI.Services.AdminService
                 return token;
             }
             else
-            throw new NotImplementedException("Неправильный логин или пароль.");
+                throw new NotImplementedException("Неправильный логин или пароль.");
+        }
+
+        public async Task Logout()
+        {
+            if (_httpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
+            {
+                await _httpContextAccessor.HttpContext.SignOutAsync();
+            }
         }
 
         public async Task DoctorRegistration(NewDoctor newDoctor)
@@ -113,7 +122,7 @@ namespace MedServiceAPI.Services.AdminService
             string passwordHash
                 = BCrypt.Net.BCrypt.HashPassword(newDoctor.Password);
 
-            Doctor doctor = new Doctor(newDoctor.FirstName,newDoctor.LastName,newDoctor.Speciality);
+            Doctor doctor = new Doctor(newDoctor.FirstName, newDoctor.LastName, newDoctor.Speciality);
             doctor.Login = newDoctor.Login;
             doctor.PasswordHash = passwordHash;
             doctor.Role = Doctor;
@@ -128,14 +137,14 @@ namespace MedServiceAPI.Services.AdminService
             _doctorRepository.SaveChanges();
         }
 
-        public async Task <Patient> GetCurrentPatient()
+        public async Task<Patient> GetCurrentPatient()
         {
             if (_httpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
             {
                 var userName = _httpContextAccessor.HttpContext.User.Identity.Name;
                 var role = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
 
-                if(role != Patient)
+                if (role != Patient)
                 {
                     throw new InvalidOperationException("Текущий пользователь не является пациентом");
                 }
@@ -174,5 +183,7 @@ namespace MedServiceAPI.Services.AdminService
 
             return jwt;
         }
+
+
     }
 }

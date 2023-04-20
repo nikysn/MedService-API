@@ -29,9 +29,9 @@ namespace MedServiceAPI.Services.PatientServices
             return doctorsDto;
         }
 
-        public async Task<List<TimeSpan>> GetAllAppointmentTimes(int id, DateTime date)
+        public async Task<List<TimeSpan>> GetAllAppointmentTimes(int doctorId, DateTime date)
         {
-            var doctor = await _doctorRepository.GetDoctor(id);
+            var doctor = await _doctorRepository.GetDoctor(doctorId);
 
             dateRequestValidator.ValidateAndThrow((doctor, date));
 
