@@ -1,19 +1,12 @@
-﻿using AutoMapper;
-using Azure.Core;
-//using MedServiceAPI.Data;
-using MedService.DAL.Data;
-using MedService.DAL.Model;
-using MedService.DAL.DTO;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+﻿using MedService.DAL.Model;
 using Microsoft.IdentityModel.Tokens;
-using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using MedService.DAL.Interfaces;
-using MedService.DAL.Repositories;
 using Microsoft.AspNetCore.Authentication;
+using MedService.Contracts.Requests.User;
+using MedService.Contracts.Requests.User.Doctor;
 
 namespace MedServiceAPI.Services.AdminService
 {
@@ -45,10 +38,10 @@ namespace MedServiceAPI.Services.AdminService
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task Registration(NewUserDto newUser)
+        public async Task Registration(CreateUserRequest createUserRequest)
         {
             string passwordHash
-                = BCrypt.Net.BCrypt.HashPassword(newUser.Password);
+                = BCrypt.Net.BCrypt.HashPassword(createUserRequest.Password);
 
             int adminCount = await _adminRepository.GetAdminsCountAsync();
             string role = adminCount == 0 ? Admin : Patient;
@@ -56,10 +49,10 @@ namespace MedServiceAPI.Services.AdminService
             if (role == Admin)
             {
                 Admin admin = new Admin();
-                admin.Login = newUser.Login;
+                admin.Login = createUserRequest.Login;
                 admin.PasswordHash = passwordHash;
-                admin.FirstName = newUser.FirstName;
-                admin.LastName = newUser.LastName;
+                admin.FirstName = createUserRequest.FirstName;
+                admin.LastName = createUserRequest.LastName;
                 admin.Role = role;
 
                 var existingAdmin = await _adminRepository.GetUserByLoginAsync(admin.Login);
@@ -72,10 +65,10 @@ namespace MedServiceAPI.Services.AdminService
             if (role == Patient)
             {
                 Patient patient = new Patient();
-                patient.FirstName = newUser.FirstName;
-                patient.LastName = newUser.LastName;
+                patient.FirstName = createUserRequest.FirstName;
+                patient.LastName = createUserRequest.LastName;
                 patient.Role = role;
-                patient.Login = newUser.Login;
+                patient.Login = createUserRequest.Login;
                 patient.PasswordHash = passwordHash;
 
                 var existingPatient = await _patientRepository.GetUserByLoginAsync(patient.Login);
@@ -90,17 +83,17 @@ namespace MedServiceAPI.Services.AdminService
             await _adminRepository.SaveChanges();
         }
 
-        public async Task<string> Login(string login, string password)
+        public async Task<string> Login(SignInRequest signInRequest)
         {
-            var admin = await _adminRepository.GetAdminByLoginAsync(login);
-            if (admin != null && BCrypt.Net.BCrypt.Verify(password, admin.PasswordHash))
+            var admin = await _adminRepository.GetAdminByLoginAsync(signInRequest.Login);
+            if (admin != null && BCrypt.Net.BCrypt.Verify(signInRequest.Password, admin.PasswordHash))
             {
                 string token = CreateToken(admin);
                 return token;
             }
 
-            var patient = await _patientRepository.GetUserByLoginAsync(login);
-            if (patient != null && BCrypt.Net.BCrypt.Verify(password, patient.PasswordHash))
+            var patient = await _patientRepository.GetUserByLoginAsync(signInRequest.Login);
+            if (patient != null && BCrypt.Net.BCrypt.Verify(signInRequest.Password, patient.PasswordHash))
             {
                 string token = CreateToken(patient);
                 return token;
@@ -117,13 +110,13 @@ namespace MedServiceAPI.Services.AdminService
             }
         }
 
-        public async Task DoctorRegistration(NewDoctor newDoctor)
+        public async Task DoctorRegistration(CreateDoctorRequest createDoctorRequest)
         {
             string passwordHash
-                = BCrypt.Net.BCrypt.HashPassword(newDoctor.Password);
+                = BCrypt.Net.BCrypt.HashPassword(createDoctorRequest.Password);
 
-            Doctor doctor = new Doctor(newDoctor.FirstName, newDoctor.LastName, newDoctor.Speciality);
-            doctor.Login = newDoctor.Login;
+            Doctor doctor = new Doctor(createDoctorRequest.FirstName, createDoctorRequest.LastName, createDoctorRequest.Speciality);
+            doctor.Login = createDoctorRequest.Login;
             doctor.PasswordHash = passwordHash;
             doctor.Role = Doctor;
 
@@ -134,7 +127,7 @@ namespace MedServiceAPI.Services.AdminService
             }
 
             await _doctorRepository.AddDoctorAsync(doctor);
-            _doctorRepository.SaveChanges();
+           await _doctorRepository.SaveChanges();
         }
 
         public async Task<Patient> GetCurrentPatient()
@@ -183,7 +176,5 @@ namespace MedServiceAPI.Services.AdminService
 
             return jwt;
         }
-
-
     }
 }

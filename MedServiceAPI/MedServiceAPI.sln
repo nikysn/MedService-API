@@ -5,7 +5,11 @@ VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MedServiceAPI", "MedServiceAPI\MedServiceAPI.csproj", "{EB380DD5-24F0-4480-A648-CE3DC223700C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MedService.DAL", "MedService.DAL\MedService.DAL.csproj", "{64084E9F-954B-4AD5-BF85-9C15F3C301EB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MedService.DAL", "MedService.DAL\MedService.DAL.csproj", "{64084E9F-954B-4AD5-BF85-9C15F3C301EB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MedService.Contracts", "MedService.Contracts\MedService.Contracts.csproj", "{C88978BA-EBCE-47B0-9467-F3A021A46B5A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MedService.Common", "MedService.Common\MedService.Common.csproj", "{8CD745B5-0CC0-4B08-B8FD-D127241C1330}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{64084E9F-954B-4AD5-BF85-9C15F3C301EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{64084E9F-954B-4AD5-BF85-9C15F3C301EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{64084E9F-954B-4AD5-BF85-9C15F3C301EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C88978BA-EBCE-47B0-9467-F3A021A46B5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C88978BA-EBCE-47B0-9467-F3A021A46B5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C88978BA-EBCE-47B0-9467-F3A021A46B5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C88978BA-EBCE-47B0-9467-F3A021A46B5A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8CD745B5-0CC0-4B08-B8FD-D127241C1330}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CD745B5-0CC0-4B08-B8FD-D127241C1330}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CD745B5-0CC0-4B08-B8FD-D127241C1330}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CD745B5-0CC0-4B08-B8FD-D127241C1330}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

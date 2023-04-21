@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using MedService.Common.Models.Users.Doctor;
+using MedService.Contracts.Responses.Doctor;
 using MedService.DAL.DTO;
 using MedService.DAL.Model;
 
@@ -8,10 +10,10 @@ namespace MedService.DAL.Mappings
     {
         public AutoMapperProfile()
         {
-            CreateMap<Doctor, DoctorDTOWithoutSchedule>()
+            CreateMap<Doctor, DoctorWithoutScheduleResponse>()
                 .ForMember(dest => dest.Speciality, opt => opt.MapFrom(src => src.Speciality));
 
-            CreateMap<Speciality, string>().ConvertUsing(src => src.ToString());
+            CreateMap<DoctorSpeciality, string>().ConvertUsing(src => src.ToString());
         }
     }
 }

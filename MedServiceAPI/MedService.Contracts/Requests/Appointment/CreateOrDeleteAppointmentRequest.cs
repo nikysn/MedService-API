@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MedService.DAL.DTO
+namespace MedService.Contracts.Requests.Appointment
 {
-    public class AppointmentRequest
+    public class CreateOrDeleteAppointmentRequest
     {
         public int Id { get; set; }
         public DateTime Date { get; set; }

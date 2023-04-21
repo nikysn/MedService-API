@@ -58,9 +58,9 @@ namespace MedService.DAL.Repositories
             await _dataContext.SaveChangesAsync();
         }
 
-        public async Task<Doctor> GetUserByLoginAsync(string login)
+        public async Task<Doctor> GetUserByLoginAsync(string userLogin)
         {
-            var doctor = await _dataContext.Doctors.FirstOrDefaultAsync(u => u.Login == login);
+            var doctor = await _dataContext.Doctors.FirstOrDefaultAsync(u => u.Login == userLogin);
            
             if (doctor == null)
             {

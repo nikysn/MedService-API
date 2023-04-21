@@ -1,4 +1,5 @@
-﻿using MedService.DAL.DTO;
+﻿using MedService.Contracts.Requests.User;
+using MedService.Contracts.Requests.User.Doctor;
 using MedServiceAPI.Services.AdminService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -23,24 +24,24 @@ namespace MedServiceAPI.Controllers
 
         [HttpPost("Registration")]
 
-        public async Task<ActionResult> Registration(NewUserDto newUser)
+        public async Task<ActionResult> Registration([FromBody]CreateUserRequest createUserRequest)
         {
-            await _authService.Registration(newUser);
+            await _authService.Registration(createUserRequest);
             return Ok();
         }
 
         [HttpPost("DoctorRegistration"), Authorize(Roles = "Admin")]
 
-        public async Task<ActionResult> DoctorRegistration(NewDoctor newDoctor)
+        public async Task<ActionResult> DoctorRegistration([FromBody] CreateDoctorRequest createDoctorRequest)
         {
-            await _authService.DoctorRegistration(newDoctor);
+            await _authService.DoctorRegistration(createDoctorRequest);
             return Ok();
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<string>> Login(string login, string password)
+        public async Task<ActionResult<string>> Login([FromBody] SignInRequest signInRequest)
         {
-            var token = await _authService.Login(login, password);
+            var token = await _authService.Login(signInRequest);
             return Ok(token);
         }
     }

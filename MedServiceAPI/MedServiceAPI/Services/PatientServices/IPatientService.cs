@@ -1,4 +1,5 @@
-﻿using MedService.DAL.DTO;
+﻿using MedService.Contracts.Requests.Appointment;
+using MedService.Contracts.Responses.Doctor;
 using MedService.DAL.Model;
 
 namespace MedServiceAPI.Services.PatientServices
@@ -9,7 +10,7 @@ namespace MedServiceAPI.Services.PatientServices
         /// Показать всех докторов
         /// </summary>
         /// <returns></returns>
-        Task<List<DoctorDTOWithoutSchedule>> GetAllDoctors();
+        Task<List<DoctorWithoutScheduleResponse>> GetAllDoctors();
 
         /// <summary>
         /// Показать свободное время для записи к врачу
@@ -26,7 +27,7 @@ namespace MedServiceAPI.Services.PatientServices
         /// <param name="date"></param>
         /// <param name="time"></param>
         /// <returns></returns>
-        Task<List<AppointmentTime>> MakeAnAppointment(AppointmentRequest appointmentRequest);
+        Task<List<AppointmentTime>> MakeAnAppointment(CreateOrDeleteAppointmentRequest createOrDeleteAppointmentRequest);
 
         /// <summary>
         /// Удалить запись
@@ -35,7 +36,7 @@ namespace MedServiceAPI.Services.PatientServices
         /// <param name="date"></param>
         /// <param name="time"></param>
         /// <returns></returns>
-        Task DeleteAnAppointment(AppointmentRequest appointmentRequest);
+        Task DeleteAnAppointment(CreateOrDeleteAppointmentRequest createOrDeleteAppointmentRequest);
         
     }
 }

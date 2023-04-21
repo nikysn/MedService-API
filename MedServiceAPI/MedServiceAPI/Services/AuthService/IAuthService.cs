@@ -1,4 +1,5 @@
-﻿using MedService.DAL.DTO;
+﻿using MedService.Contracts.Requests.User;
+using MedService.Contracts.Requests.User.Doctor;
 using MedService.DAL.Model;
 
 namespace MedServiceAPI.Services.AdminService
@@ -10,7 +11,7 @@ namespace MedServiceAPI.Services.AdminService
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        Task Registration(NewUserDto request);
+        Task Registration(CreateUserRequest createUserRequest);
 
         /// <summary>
         /// Авторизация
@@ -18,14 +19,14 @@ namespace MedServiceAPI.Services.AdminService
         /// <param name="login"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        Task<string> Login(string login, string password);
+        Task<string> Login(SignInRequest signInRequest);
 
         /// <summary>
         /// Регистрация доктора
         /// </summary>
         /// <param name="newDoctor"></param>
         /// <returns></returns>
-        Task DoctorRegistration(NewDoctor newDoctor);
+        Task DoctorRegistration(CreateDoctorRequest createDoctorRequest);
         /// <summary>
         /// Получение Id юзера который залогинелся
         /// </summary>

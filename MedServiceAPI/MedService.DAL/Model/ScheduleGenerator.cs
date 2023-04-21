@@ -1,4 +1,6 @@
-﻿namespace MedService.DAL.Model
+﻿using MedService.Common.Models.Users.Doctor;
+
+namespace MedService.DAL.Model
 {
     public class ScheduleGenerator
     {
@@ -9,7 +11,7 @@
 
             switch (doctor.Speciality)
             {
-                case Speciality.Therapist:
+                case DoctorSpeciality.Therapist:
                     timeSpans.AddRange(new[]
                     {
                         new TimeSpan(9,0,0),
@@ -29,7 +31,7 @@
 
                     break;
 
-                case Speciality.Surgeon:
+                case DoctorSpeciality.Surgeon:
                     timeSpans.AddRange(new[]
                     {
                         new TimeSpan(10,0,0),

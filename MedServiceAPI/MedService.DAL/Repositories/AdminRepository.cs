@@ -2,11 +2,6 @@
 using MedService.DAL.Interfaces;
 using MedService.DAL.Model;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MedService.DAL.Repositories
 {
@@ -24,9 +19,9 @@ namespace MedService.DAL.Repositories
             _dataContext.Admins.Add(admin);
         }
 
-        public async Task<Admin> GetAdminByLoginAsync(string login)
+        public async Task<Admin> GetAdminByLoginAsync(string adminLogin)
         {
-            var admin = await _dataContext.Admins.SingleOrDefaultAsync(x => x.Login == login);
+            var admin = await _dataContext.Admins.SingleOrDefaultAsync(x => x.Login == adminLogin);
             return admin;
         }
 
@@ -36,9 +31,9 @@ namespace MedService.DAL.Repositories
             return adminCount;
         }
 
-        public async Task<Admin> GetUserByLoginAsync(string login)
+        public async Task<Admin> GetUserByLoginAsync(string userLogin)
         {
-            var admin = await _dataContext.Admins.FirstOrDefaultAsync(u => u.Login == login);
+            var admin = await _dataContext.Admins.FirstOrDefaultAsync(u => u.Login == userLogin);
             return admin;
         }
 

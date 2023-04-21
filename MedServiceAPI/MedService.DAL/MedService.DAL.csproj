@@ -21,4 +21,9 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\MedService.Common\MedService.Common.csproj" />
+    <ProjectReference Include="..\MedService.Contracts\MedService.Contracts.csproj" />
+  </ItemGroup>
+
 </Project>

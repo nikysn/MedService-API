@@ -1,7 +1,12 @@
-﻿
-namespace MedService.DAL.DTO
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace MedService.Contracts.Requests.User
 {
-    public class NewUserDto
+    public class CreateUserRequest
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }

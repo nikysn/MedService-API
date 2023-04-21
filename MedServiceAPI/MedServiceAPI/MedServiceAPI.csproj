@@ -29,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MedService.Contracts\MedService.Contracts.csproj" />
     <ProjectReference Include="..\MedService.DAL\MedService.DAL.csproj" />
   </ItemGroup>
 

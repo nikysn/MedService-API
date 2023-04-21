@@ -3,8 +3,9 @@ using FluentValidation;
 using MedService.DAL.Model;
 using MedService.DAL.Interfaces;
 using MedServiceAPI.Validations;
-using MedService.DAL.DTO;
 using MedServiceAPI.Services.AdminService;
+using MedService.Contracts.Requests.Appointment;
+using MedService.Contracts.Responses.Doctor;
 
 namespace MedServiceAPI.Services.PatientServices
 {
@@ -22,10 +23,10 @@ namespace MedServiceAPI.Services.PatientServices
             _authService = authService;
         }
 
-        public async Task<List<DoctorDTOWithoutSchedule>> GetAllDoctors()
+        public async Task<List<DoctorWithoutScheduleResponse>> GetAllDoctors()
         {
             var doctors = await _doctorRepository.GetAllDoctors();
-            var doctorsDto = _mapper.Map<List<DoctorDTOWithoutSchedule>>(doctors);
+            var doctorsDto = _mapper.Map<List<DoctorWithoutScheduleResponse>>(doctors);
             return doctorsDto;
         }
 
@@ -47,25 +48,25 @@ namespace MedServiceAPI.Services.PatientServices
             return freeTimes;
         }
 
-        public async Task<List<AppointmentTime>> MakeAnAppointment(AppointmentRequest appointmentRequest)
+        public async Task<List<AppointmentTime>> MakeAnAppointment(CreateOrDeleteAppointmentRequest createOrDeleteAppointmentRequest)
         {
-            var doctor = await _doctorRepository.GetDoctor(appointmentRequest.Id);
+            var doctor = await _doctorRepository.GetDoctor(createOrDeleteAppointmentRequest.Id);
             var patient = await _authService.GetCurrentPatient();
-            dateRequestValidator.ValidateAndThrow((doctor, appointmentRequest.Date));
+            dateRequestValidator.ValidateAndThrow((doctor, createOrDeleteAppointmentRequest.Date));
 
-            var appointmentDate = doctor.AppointmentDate.SingleOrDefault(ad => ad.Date.Date == appointmentRequest.Date.Date);
+            var appointmentDate = doctor.AppointmentDate.SingleOrDefault(ad => ad.Date.Date == createOrDeleteAppointmentRequest.Date.Date);
             var validatorTime = new AppointmentTimeRequestValidator();
 
             if (appointmentDate == null)
             {
-                appointmentDate = new AppointmentDate(appointmentRequest.Date, TimeSpan.Parse(appointmentRequest.Time), doctor.Id, patient.Id);
+                appointmentDate = new AppointmentDate(createOrDeleteAppointmentRequest.Date, TimeSpan.Parse(createOrDeleteAppointmentRequest.Time), doctor.Id, patient.Id);
                 validatorTime.ValidateAndThrow((doctor, appointmentDate));
                 doctor.AppointmentDate.Add(appointmentDate);
             }
 
             else
             {
-                var newAppointmentDate = new AppointmentDate(appointmentRequest.Date, TimeSpan.Parse(appointmentRequest.Time), doctor.Id, patient.Id);
+                var newAppointmentDate = new AppointmentDate(createOrDeleteAppointmentRequest.Date, TimeSpan.Parse(createOrDeleteAppointmentRequest.Time), doctor.Id, patient.Id);
                 validatorTime.ValidateAndThrow((doctor, newAppointmentDate));
                 var appointmentTime = newAppointmentDate.AppointmentTimes[0];
                 appointmentDate.AppointmentTimes.Add(appointmentTime);
@@ -76,16 +77,16 @@ namespace MedServiceAPI.Services.PatientServices
             return appointmentDate.AppointmentTimes;
         }
 
-        public async Task DeleteAnAppointment(AppointmentRequest appointmentRequest)
+        public async Task DeleteAnAppointment(CreateOrDeleteAppointmentRequest createOrDeleteAppointmentRequest)
         {
-            var doctor = await _doctorRepository.GetDoctor(appointmentRequest.Id);
+            var doctor = await _doctorRepository.GetDoctor(createOrDeleteAppointmentRequest.Id);
             var patient = await _authService.GetCurrentPatient();
-            var appointmentDate = doctor.AppointmentDate.SingleOrDefault(ad => ad.Date.Date == appointmentRequest.Date.Date);
+            var appointmentDate = doctor.AppointmentDate.SingleOrDefault(ad => ad.Date.Date == createOrDeleteAppointmentRequest.Date.Date);
             if(appointmentDate == null)
             {
                 throw new ArgumentException("Запись на эту дату не найдена");
             }
-            var appointmentTime = appointmentDate.AppointmentTimes.Single(at => at.Time == TimeSpan.Parse(appointmentRequest.Time));
+            var appointmentTime = appointmentDate.AppointmentTimes.Single(at => at.Time == TimeSpan.Parse(createOrDeleteAppointmentRequest.Time));
 
             if(appointmentTime.PatientId != patient.Id)
             {

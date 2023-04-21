@@ -1,4 +1,5 @@
-﻿using MedService.DAL.DTO;
+﻿using MedService.Contracts.Requests.Appointment;
+using MedService.Contracts.Responses.Doctor;
 using MedServiceAPI.Services.PatientServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -18,29 +19,29 @@ namespace MedServiceAPI.Controllers
         }
 
         [HttpGet("GetAllDoctors"), Authorize(Roles = "Admin,Doctor,Patient")]
-        public async Task<ActionResult<List<DoctorDTOWithoutSchedule>>> GetAllDoctors()
+        public async Task<ActionResult<List<DoctorWithoutScheduleResponse>>> GetAllDoctors()
         {
             return await _patientService.GetAllDoctors();
         }
 
         [HttpGet("GetAllAppointmentTimes"), Authorize(Roles = "Admin,Doctor,Patient")]
-        public async Task<ActionResult<List<TimeSpan>>> GetAllAppointmentTimes(int id, DateTime date)
+        public async Task<ActionResult<List<TimeSpan>>> GetAllAppointmentTimes([FromRoute] int doctorId, [FromRoute] DateTime date)
         {
-            return await _patientService.GetAllAppointmentTimes(id, date);
+            return await _patientService.GetAllAppointmentTimes(doctorId, date);
         }
 
         [HttpPost("MakeAnAppointment"), Authorize(Roles = "Patient")]
-        public async Task<List<TimeSpan>> MakeAnAppointment([FromBody] AppointmentRequest appointmentRequest )
+        public async Task<ActionResult<List<TimeSpan>>> MakeAnAppointment([FromBody] CreateOrDeleteAppointmentRequest createOrDeleteAppointmentRequest)
         {
-            await _patientService.MakeAnAppointment(appointmentRequest);
+            await _patientService.MakeAnAppointment(createOrDeleteAppointmentRequest);
 
-            return await _patientService.GetAllAppointmentTimes(appointmentRequest.Id, appointmentRequest.Date);
+            return await _patientService.GetAllAppointmentTimes(createOrDeleteAppointmentRequest.Id, createOrDeleteAppointmentRequest.Date);
         }
 
         [HttpDelete("DeleteAnAppointment"), Authorize(Roles = "Patient")]
-        public async Task<ActionResult> DeleteAnAppointment([FromBody] AppointmentRequest appointmentRequest)
+        public async Task<ActionResult> DeleteAnAppointment([FromBody] CreateOrDeleteAppointmentRequest createOrDeleteAppointmentRequest)
         {
-            await _patientService.DeleteAnAppointment(appointmentRequest);
+            await _patientService.DeleteAnAppointment(createOrDeleteAppointmentRequest);
 
             return Ok();
         }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using MedService.Common.Models.Users.Doctor;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MedService.DAL.Model;
 
@@ -13,7 +14,7 @@ public class Doctor
     public int Id { get; set; }
     public string FirstName { get; set; }
     public string LastName { get; set; }
-    public Speciality Speciality { get; set; }
+    public DoctorSpeciality Speciality { get; set; }
     public string Login { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
@@ -22,7 +23,7 @@ public class Doctor
     [NotMapped]
     public Dictionary<DayOfWeek, List<TimeSpan>> Schedule { get; set; }
 
-    public Doctor(string firstName, string lastName, Speciality speciality)
+    public Doctor(string firstName, string lastName, DoctorSpeciality speciality)
     {
         FirstName = firstName;
         LastName = lastName;
