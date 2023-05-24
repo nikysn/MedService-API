@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using MedService.Common.Models.Users.Doctor;
 using MedService.Contracts.Responses.Doctor;
-using MedService.DAL.DTO;
 using MedService.DAL.Model;
 
 namespace MedService.DAL.Mappings

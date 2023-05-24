@@ -1,9 +1,12 @@
 ﻿
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace MedService.DAL.Model
 {
     public class AppointmentDate
     {
         public int Id { get; set; }
+        [Column(TypeName = "date")]
         public DateTime Date { get; set; }
        // [NotMapped]
         public List<AppointmentTime> AppointmentTimes { get; set; }

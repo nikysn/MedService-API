@@ -1,5 +1,5 @@
-﻿using MedService.DAL.Data;
-using MedService.DAL.Interfaces;
+﻿using MedService.DAL.Abstraction.Repositories;
+using MedService.DAL.Data;
 using MedService.DAL.Model;
 using Microsoft.EntityFrameworkCore;
 

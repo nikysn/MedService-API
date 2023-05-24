@@ -5,11 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MedService.DAL.Interfaces
+namespace MedService.DAL.Abstraction.Repositories
 {
     public interface IPatientRepository : IBaseRepository<Patient>
     {
         Task AddPatientAsync(Patient patient);
-       // Task<Patient> GetPatientByLoginAsync(string login);
+        // Task<Patient> GetPatientByLoginAsync(string login);
     }
 }

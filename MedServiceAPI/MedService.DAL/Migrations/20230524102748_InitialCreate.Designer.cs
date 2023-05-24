@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MedService.DAL.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230411124444_InitialCreate")]
+    [Migration("20230524102748_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -53,10 +53,6 @@ namespace MedService.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Roless")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.ToTable("Admins");
@@ -71,7 +67,7 @@ namespace MedService.DAL.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("date");
 
                     b.Property<int>("DoctorId")
                         .HasColumnType("int");
@@ -94,12 +90,17 @@ namespace MedService.DAL.Migrations
                     b.Property<int>("AppointmentDateId")
                         .HasColumnType("int");
 
+                    b.Property<int>("PatientId")
+                        .HasColumnType("int");
+
                     b.Property<TimeSpan>("Time")
                         .HasColumnType("time");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AppointmentDateId");
+
+                    b.HasIndex("PatientId");
 
                     b.ToTable("AppointmentTimes");
                 });
@@ -192,7 +193,15 @@ namespace MedService.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("MedService.DAL.Model.Patient", "Patient")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("AppointmentDate");
+
+                    b.Navigation("Patient");
                 });
 
             modelBuilder.Entity("MedService.DAL.Model.AppointmentDate", b =>

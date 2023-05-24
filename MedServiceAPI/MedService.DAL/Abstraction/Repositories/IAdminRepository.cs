@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MedService.DAL.Interfaces
+namespace MedService.DAL.Abstraction.Repositories
 {
     public interface IAdminRepository : IBaseRepository<Admin>
     {

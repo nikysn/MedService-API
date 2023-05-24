@@ -1,5 +1,5 @@
-﻿using MedService.DAL.Data;
-using MedService.DAL.Interfaces;
+﻿using MedService.DAL.Abstraction.Repositories;
+using MedService.DAL.Data;
 using MedService.DAL.Model;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -64,7 +64,7 @@ namespace MedService.DAL.Repositories
            
             if (doctor == null)
             {
-                throw new ArgumentException("Такого доктора нет");
+                throw new ArgumentException("Такого доктора нет");     //  ИСПРАВИТЬ - когда добавляем первого доктора - он выдаст налл
             }
             return doctor;
         }
