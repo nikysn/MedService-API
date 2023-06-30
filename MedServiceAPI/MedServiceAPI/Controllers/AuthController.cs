@@ -1,6 +1,6 @@
-﻿using MedService.Contracts.Requests.User;
-using MedService.Contracts.Requests.User.Doctor;
-using MedServiceAPI.Services.AdminService;
+﻿using MedService.Contracts.Abstraction.Services;
+using MedServiceAPI.Model.Requests.User;
+using MedServiceAPI.Model.Requests.User.Doctor;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

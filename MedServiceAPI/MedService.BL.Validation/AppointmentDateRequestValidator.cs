@@ -1,9 +1,8 @@
 ﻿using FluentValidation;
 using MedService.Contracts.Abstraction.Repositories;
 using MedService.Contracts.DTOModel.Appointment;
-using MedService.DAL.Model;
 
-namespace MedServiceAPI.Validations
+namespace MedService.BL.Validation
 {
     public class AppointmentDateRequestValidator : AbstractValidator<AppointmentDto>
     {
@@ -14,7 +13,7 @@ namespace MedServiceAPI.Validations
 
             RuleFor(x => x.Date).NotEmpty().WithMessage("Дата не может быть пустой");
             RuleFor(x => x).Must(BeWithin7Days).WithMessage("Запись к врачу только на 7 дней вперед");
-           // RuleFor(x => x).Must(BeWeekDay).WithMessage("В эту дату у доктора выходной");
+            RuleFor(x => x).MustAsync(BeWeekDay).WithMessage("В эту дату у доктора выходной");  //Если не будет работать то нужно как то использовать cancellationToken.None
         }
 
         private bool BeWithin7Days(AppointmentDto appointmentDto)
@@ -22,11 +21,11 @@ namespace MedServiceAPI.Validations
             return appointmentDto.Date > DateTime.Now.Date && appointmentDto.Date <= DateTime.Now.AddDays(7).Date;
         }
 
-      /*  private async bool BeWeekDay(AppointmentDto appointmentDto)
+        private async Task<bool> BeWeekDay(AppointmentDto appointmentDto, CancellationToken cancellationToken)
         {
             var workingHourse = await _workingHoursRepository.GetWorkingHours(appointmentDto);
-
-           // return workingHourse.Any(wh => wh.Schedule)
-        }*/
+            bool asd =  workingHourse.Any(wh => wh.Schedule.ContainsKey(appointmentDto.Date.DayOfWeek));
+            return asd;
+        }
     }
 }

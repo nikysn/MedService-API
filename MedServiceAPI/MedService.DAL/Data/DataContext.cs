@@ -24,7 +24,9 @@ namespace MedService.DAL.Data
         public DbSet<AppointmentTime> AppointmentTimes { get; set;}
         public DbSet<Admin> Admins { get; set; }
         public DbSet<Patient> Patients { get; set; }
+        public DbSet<WorkingHours> WorkingHours { get; set; }
 
-      
+
+
     }
 }

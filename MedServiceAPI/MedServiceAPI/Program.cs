@@ -1,10 +1,14 @@
 //using MedServiceAPI.Data;
+using FluentValidation;
+using Mapster;
+using MapsterMapper;
+using MedService.BL.Services;
+using MedService.Contracts.Abstraction.Repositories;
+using MedService.Contracts.Abstraction.Services;
 using MedService.DAL.Data;
-using MedService.DAL.Interfaces;
 using MedService.DAL.Mappings;
 using MedService.DAL.Repositories;
-using MedServiceAPI.Services.AdminService;
-using MedServiceAPI.Services.PatientServices;
+using MedServiceAPI.Validations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -30,6 +34,10 @@ builder.Services.AddSwaggerGen(options =>
     options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
 builder.Services.AddAutoMapper(typeof(Program),typeof(AutoMapperProfile));
+var config = new TypeAdapterConfig();
+builder.Services.AddSingleton(config);
+builder.Services.AddSingleton<IMapper, ServiceMapper>();
+
 var connectionString = builder.Configuration.GetConnectionString("MSSQL");
 builder.Services.AddDbContext<DataContext>(options =>
 {
@@ -41,6 +49,9 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+builder.Services.AddScoped<IValidator<AppointmentDateRequestValidator>>();
+
+
 builder.Services.AddAuthentication().AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters

@@ -1,24 +1,27 @@
-﻿using MedService.DAL.Abstraction.Repositories;
+﻿using MapsterMapper;
+using MedService.Contracts.Abstraction.Repositories;
+using MedService.Contracts.DTOModel.Appointment;
+using MedService.Contracts.DTOModel.User.Doctor;
 using MedService.DAL.Data;
 using MedService.DAL.Model;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MedService.DAL.Repositories
 {
     public class DoctorRepository : IDoctorRepository
     {
         private readonly DataContext _dataContext;
-        public DoctorRepository(DataContext dataContext)
+        private readonly IMapper _mapper;
+        private readonly IValidator<>
+        public DoctorRepository(DataContext dataContext, IMapper mapper)
         {
             _dataContext = dataContext;
+            _mapper = mapper;
         }
 
-         public async Task AddDoctorAsync(Doctor doctor)
+        public async Task AddDoctorAsync(Doctor doctor)
         {
             _dataContext.Doctors.Add(doctor);
         }
@@ -28,9 +31,11 @@ namespace MedService.DAL.Repositories
             throw new NotImplementedException();
         }
 
-        public async Task <List<Doctor>> GetAllDoctors()
+        public async Task<IEnumerable<DoctorWithOutScheduleDto>> GetAllDoctors()
         {
-            return await _dataContext.Doctors.ToListAsync();
+            var doctorEntities = await _dataContext.Doctors.ToArrayAsync();
+            var doctorDtos = _mapper.Map<Doctor[], DoctorWithOutScheduleDto[]>(doctorEntities);
+            return doctorDtos;
         }
 
         public async Task<Doctor> GetDoctorByLastName(string lastName)
@@ -38,19 +43,18 @@ namespace MedService.DAL.Repositories
             throw new NotImplementedException();
         }
 
-        public async Task <Doctor> GetDoctor(int doctorId)
+        public async Task<IEnumerable<TimeSpan>> GetAvailableTimes(AppointmentDto appointmentDto)
         {
-            var doctor = await _dataContext.Doctors
-               .Include(d => d.AppointmentDate)
-               .ThenInclude(ad => ad.AppointmentTimes)
-               .FirstOrDefaultAsync(d => d.Id == doctorId);
+            var availableTimes = await _dataContext.WorkingHours
+                  .Where(wh => wh.DoctorId == appointmentDto.DoctorId && wh.DayOfWeek == (int)appointmentDto.Date.DayOfWeek)
+                  .Select(wh => wh.AppointmentTime)
+                  .Except(_dataContext.AppointmentDates
+                             .Where(ad => ad.DoctorId == appointmentDto.DoctorId && ad.Date.Date == appointmentDto.Date.Date)
+                             .SelectMany(ad => ad.AppointmentTimes)
+                             .Select(at => at.Time))
+                  .ToArrayAsync();
 
-            if (doctor == null)
-            {
-                throw new ArgumentException("Такого доктора нет");
-            }
-
-            return doctor;
+            return  availableTimes;
         }
 
         public async Task SaveChanges()
@@ -61,7 +65,7 @@ namespace MedService.DAL.Repositories
         public async Task<Doctor> GetUserByLoginAsync(string userLogin)
         {
             var doctor = await _dataContext.Doctors.FirstOrDefaultAsync(u => u.Login == userLogin);
-           
+
             if (doctor == null)
             {
                 throw new ArgumentException("Такого доктора нет");     //  ИСПРАВИТЬ - когда добавляем первого доктора - он выдаст налл

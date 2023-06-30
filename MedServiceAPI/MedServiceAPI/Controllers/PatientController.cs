@@ -1,8 +1,9 @@
-﻿using MedService.Contracts.Requests.Appointment;
-using MedService.Contracts.Responses.Doctor;
-using MedServiceAPI.Services.PatientServices;
+﻿using AutoMapper;
+using MedService.Contracts.Abstraction.Services;
+using MedService.Contracts.DTOModel.Appointment;
+using MedServiceAPI.Model.Requests.Appointment;
+using MedServiceAPI.Model.Responses.Doctor;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MedServiceAPI.Controllers
@@ -12,22 +13,26 @@ namespace MedServiceAPI.Controllers
     public class PatientController : ControllerBase
     {
         private readonly IPatientService _patientService;
+        private readonly IMapper _mapper;
 
-        public PatientController(IPatientService patientService)
+        public PatientController(IPatientService patientService, IMapper mapper)
         {
             _patientService = patientService;
+            _mapper = mapper;
         }
 
         [HttpGet("GetAllDoctors"), Authorize(Roles = "Admin,Doctor,Patient")]
-        public async Task<ActionResult<List<DoctorWithoutScheduleResponse>>> GetAllDoctors()
+        public async Task<ActionResult<IEnumerable<DoctorWithOutScheduleResponse>>> GetAllDoctors()
         {
-            return await _patientService.GetAllDoctors();
+            var doctors = await _patientService.GetAllDoctors();
+            return Ok(_mapper.Map<IEnumerable<DoctorWithOutScheduleResponse>>(doctors));
         }
 
         [HttpGet("GetAllAppointmentTimes"), Authorize(Roles = "Admin,Doctor,Patient")]
-        public async Task<ActionResult<List<TimeSpan>>> GetAllAppointmentTimes([FromRoute] int doctorId, [FromRoute] DateTime date)
+        public async Task<ActionResult<IEnumerable<TimeSpan>>> GetAllAppointmentTimes([FromQuery] AppointmentRequest appointmentRequest)
         {
-            return await _patientService.GetAllAppointmentTimes(doctorId, date);
+            var appointmentDto = _mapper.Map<AppointmentDto>(appointmentRequest);
+            return await _patientService.GetAllAppointmentTimes(appointmentDto);
         }
 
         [HttpPost("MakeAnAppointment"), Authorize(Roles = "Patient")]
@@ -43,7 +48,7 @@ namespace MedServiceAPI.Controllers
         {
             await _patientService.DeleteAnAppointment(createOrDeleteAppointmentRequest);
 
-            return Ok();
+            return NoContent();
         }
     }
 }

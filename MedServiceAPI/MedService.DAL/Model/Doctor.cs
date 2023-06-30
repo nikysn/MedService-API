@@ -20,8 +20,9 @@ public class Doctor
     public string Role { get; set; } = string.Empty;
     public List<AppointmentDate> AppointmentDate { get; set; }
 
-    [NotMapped]
-    public Dictionary<DayOfWeek, List<TimeSpan>> Schedule { get; set; }
+    public WorkingHours WorkingHours { get; set; }
+    // [NotMapped]
+    // public Dictionary<DayOfWeek, List<TimeSpan>> Schedule { get; set; }
 
     public Doctor(string firstName, string lastName, DoctorSpeciality speciality)
     {
@@ -29,13 +30,13 @@ public class Doctor
         LastName = lastName;
         Speciality = speciality;
         AppointmentDate = new List<AppointmentDate>();
-        var scheduleGenerator = new ScheduleGenerator();
-        Schedule = scheduleGenerator.GenerateSchedule(this);
+      //  var scheduleGenerator = new ScheduleGenerator();
+       // Schedule = scheduleGenerator.GenerateSchedule(this);
       //  GenerationSchedule();
 
     }
 
-    private void GenerationSchedule()
+ /*   private void GenerationSchedule()
     {
         Schedule = new Dictionary<DayOfWeek, List<TimeSpan>>();
 
@@ -55,5 +56,5 @@ public class Doctor
             Schedule[day] = new List<TimeSpan>();
             Schedule[day].AddRange(timeSpans);
         }
-    }
+    }*/
 }
